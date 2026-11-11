@@ -22,3 +22,19 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = ['id', 'student', 'reference', 'amount_ghs', 'channel', 'status', 'created_at', 'reconciled_at']
         read_only_fields = fields
+
+
+class PaymentReconcileSerializer(serializers.Serializer):
+    """Validates input for reconciling a pending payment."""
+    verified_reference = serializers.CharField(
+        required=True,
+        allow_blank=False,
+        trim_whitespace=False,
+    )
+    def validate_verified_reference(self, value):
+        raw_value = self.initial_data.get('verified_reference')
+        if not isinstance(raw_value, str):
+            raise serializers.ValidationError('verified_reference must be a string.')
+        if not value.strip():
+            raise serializers.ValidationError('verified_reference cannot be blank.')
+        return value
